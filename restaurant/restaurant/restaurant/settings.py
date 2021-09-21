@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'aws_xray_sdk.ext.django',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,8 +43,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    'aws_xray_sdk.ext.django.middleware.XRayMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -100,6 +102,19 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# create XRAY segment
+XRAY_RECORDER = {
+    'AWS_XRAY_DAEMON_ADDRESS': '127.0.0.1:2000',
+    'PLUGINS': (),
+    'AUTO_INSTRUMENT': True,  # If turned on built-in database queries and template rendering will be recorded as subsegments
+    'AWS_XRAY_CONTEXT_MISSING': 'LOG_ERROR',
+    'SAMPLING': False,
+    'SAMPLING_RULES': None,
+    'AWS_XRAY_TRACING_NAME': "restaurant app", # the segment name for segments generated from incoming requests
+    'DYNAMIC_NAMING': "*.restaurant.com", # defines a pattern that host names should match
+    'STREAMING_THRESHOLD': None, # defines when a segment starts to stream out its children subsegments
+}
 
 
 # Internationalization

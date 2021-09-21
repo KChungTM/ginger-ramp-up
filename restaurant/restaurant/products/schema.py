@@ -54,10 +54,20 @@ class DeleteRestaurant(graphene.Mutation):
 
         return DeleteRestaurant(restaurant=restaurant) 
 
-class GetRestaurants(graphene.Mutation):
+class UpdateRating(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        rating = graphene.Int(required=True)
+
+    restaurant = graphene.Field(RestaurantType)
+
     @classmethod
-    def mutate(cls) :
-        return Restaurant.objects.all()
+    def mutate(cls, root, info, name, rating) :
+        restaurant = Restaurant.objects.get(name = name)
+        restaurant.rating = (restaurant.rating + rating) // 2
+        restaurant.save()
+
+        return UpdateRating(restaurant=restaurant)
 
 class Query(graphene.ObjectType):
     restaurant = graphene.List(RestaurantType)
@@ -69,6 +79,6 @@ class Query(graphene.ObjectType):
 class Mutation(graphene.ObjectType):
     create_restaurant = CreateRestaurant.Field()
     delete_restaurant = DeleteRestaurant.Field()
-    get_restaurants = GetRestaurants.Field()
+    update_rating = UpdateRating.Field()
         
 schema = graphene.Schema(query=Query, mutation=Mutation)
